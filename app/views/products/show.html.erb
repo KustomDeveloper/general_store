@@ -1,4 +1,9 @@
-<div>
-  <h1 class="font-bold text-4xl">Products#show</h1>
-  <p>Find me in app/views/products/show.html.erb</p>
-</div>
+<h1><%= @product.name %></h1>
+<p><%= @product.description %></p>
+<p>Price: <%= number_to_currency(@product.price) %></p>
+
+<%= form_for @order_item do |f| %>
+  <%= f.hidden_field :product_id, value: @product.id %>
+  <%= f.number_field :quantity %>
+  <%= f.submit "Add to Cart" %>
+<% end %>

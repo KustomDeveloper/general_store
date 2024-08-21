@@ -1,4 +1,4 @@
-<h1>Farm Products</h1>
+<h1>Farmers Market Products</h1>
 
 <div class="products">
   <% @products.each do |product| %>
@@ -7,7 +7,7 @@
       <p><%= product.description %></p>
       <p>Price: <%= number_to_currency(product.price) %></p>
       <p>In stock: <%= product.stock %></p>
-      <%= button_to 'Add to Cart', order_items_path(product_id: product.id) %>
+      <%= button_to 'Add to Cart', order_items_path, params: { product_id: product.id } %>
     </div>
   <% end %>
 </div>

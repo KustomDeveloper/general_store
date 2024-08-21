@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Day Three Farm</title>
+    <title>Farmers Market</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -11,6 +11,18 @@
 
   <body>
     <%= render 'layouts/navigation' %>
+    
+    <% if flash[:notice] %>
+      <div class="notice"><%= flash[:notice] %></div>
+    <% end %>
+    <% if flash[:alert] %>
+      <div class="alert"><%= flash[:alert] %></div>
+    <% end %>
+    
+    <div id="cart-status">
+      Cart: <%= pluralize(current_order.order_items.sum(:quantity), 'item') %>
+    </div>
+    
     <%= yield %>
   </body>
 </html>

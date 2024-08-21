@@ -4,13 +4,15 @@
   <% @order_items.each do |item| %>
     <div class="cart-item">
       <h2><%= item.product.name %></h2>
-      <p>Price: <%= number_to_currency(item.price) %></p>
+      <p>Price: <%= number_to_currency(item.product.price) %></p>
       <p>Quantity: <%= item.quantity %></p>
-      <p>Subtotal: <%= number_to_currency(item.price * item.quantity) %></p>
+      <p>Subtotal: <%= number_to_currency(item.product.price * item.quantity) %></p>
       <%= button_to 'Remove', order_item_path(item), method: :delete %>
     </div>
   <% end %>
-  <p>Total: <%= number_to_currency(@order_items.sum { |item| item.price * item.quantity }) %></p>
+  <p>Total: <%= number_to_currency(@order.order_items.sum { |item| item.product.price * item.quantity }) %></p>
 <% else %>
   <p>Your cart is empty.</p>
 <% end %>
+
+<%= link_to 'Continue Shopping', products_path %>

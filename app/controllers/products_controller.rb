@@ -1,6 +1,7 @@
 class ProductsController < ApplicationController
   def index
     @products = Product.all
+    @order_item = current_order.order_items.new
   end
 
   def show
@@ -11,10 +12,9 @@ class ProductsController < ApplicationController
   private
 
   def current_order
-    if session[:order_id]
-      Order.find(session[:order_id])
-    else
-      Order.new
+    Order.find_or_create_by(id: session[:order_id]).tap do |order|
+      puts "Current Order ID: #{order.id}"
+      puts "Order Items: #{order.order_items.map { |oi| { product_id: oi.product_id, quantity: oi.quantity } }}"
     end
   end
 end

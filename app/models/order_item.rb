@@ -1,8 +1,31 @@
-# app/models/order_item.rb
 class OrderItem < ApplicationRecord
   belongs_to :order
   belongs_to :product
 
-  validates :quantity, numericality: { greater_than: 0, only_integer: true }
-  validates :price, numericality: { greater_than_or_equal_to: 0 }
+  validates :quantity, presence: true, numericality: { greater_than_or_equal_to: 1, only_integer: true }
+
+  before_save :set_unit_price
+  before_save :set_total_price
+
+  def unit_price
+    if persisted?
+      self[:unit_price]
+    else
+      product.price
+    end
+  end
+
+  def total_price
+    unit_price * quantity
+  end
+
+  private
+
+  def set_unit_price
+    self[:unit_price] = unit_price
+  end
+
+  def set_total_price
+    self[:total_price] = total_price
+  end
 end
