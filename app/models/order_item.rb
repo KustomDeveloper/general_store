@@ -3,29 +3,23 @@ class OrderItem < ApplicationRecord
   belongs_to :product
 
   validates :quantity, presence: true, numericality: { greater_than_or_equal_to: 1, only_integer: true }
+  validates :unit_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
-  before_save :set_unit_price
   before_save :set_total_price
-
-  def unit_price
-    if persisted?
-      self[:unit_price]
-    else
-      product.price
-    end
-  end
+  after_save :log_changes
 
   def total_price
-    unit_price * quantity
+    quantity * unit_price
   end
 
   private
 
-  def set_unit_price
-    self[:unit_price] = unit_price
+  def set_total_price
+    self.total_price = total_price
   end
 
-  def set_total_price
-    self[:total_price] = total_price
+  def log_changes
+    Rails.logger.info "OrderItem saved - ID: #{id}, Product: #{product_id}, Quantity: #{quantity}, Total Price: #{total_price}"
   end
 end

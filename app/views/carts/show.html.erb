@@ -5,12 +5,16 @@
     <div class="cart-item">
       <h2><%= item.product.name %></h2>
       <p>Price: <%= number_to_currency(item.product.price) %></p>
-      <p>Quantity: <%= item.quantity %></p>
-      <p>Subtotal: <%= number_to_currency(item.product.price * item.quantity) %></p>
+      <%= form_with model: item, local: true do |f| %>
+        <%= f.label :quantity %>
+        <%= f.number_field :quantity, value: item.quantity, min: 1 %>
+        <%= f.submit 'Update Quantity' %>
+      <% end %>
+      <p>Subtotal: <%= number_to_currency(item.total_price) %></p>
       <%= button_to 'Remove', order_item_path(item), method: :delete %>
     </div>
   <% end %>
-  <p>Total: <%= number_to_currency(@order.order_items.sum { |item| item.product.price * item.quantity }) %></p>
+  <p>Total: <%= number_to_currency(@order.order_items.sum(&:total_price)) %></p>
 <% else %>
   <p>Your cart is empty.</p>
 <% end %>

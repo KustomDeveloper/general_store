@@ -1,29 +1,44 @@
 class OrderItemsController < ApplicationController
   def create
+    Rails.logger.info "====== STARTING CREATE ORDER ITEM ======"
     @order = current_order
-    @order_item = @order.order_items.find_or_create_by(product_id: params[:product_id]) do |item|
-      item.quantity = 0
-      item.unit_price = item.product.price
-      item.price = item.product.price
+    @order_item = @order.order_items.find_or_initialize_by(product_id: params[:product_id])
+    quantity_to_add = params[:quantity].to_i
+
+    Rails.logger.info "Product ID: #{params[:product_id]}"
+    Rails.logger.info "Quantity to add: #{quantity_to_add}"
+    Rails.logger.info "Current Quantity: #{@order_item.quantity}"
+    Rails.logger.info "Is new record? #{@order_item.new_record?}"
+
+    if @order_item.new_record?
+      @order_item.quantity = quantity_to_add
+    else
+      @order_item.quantity += quantity_to_add
     end
 
-    @order_item.quantity += 1
-    
-    puts "Debug: Product ID: #{params[:product_id]}"
-    puts "Debug: Product Price: #{@order_item.product.price}"
-    puts "Debug: Order Item Unit Price: #{@order_item.unit_price}"
-    puts "Debug: Order Item Price: #{@order_item.price}"
-    puts "Debug: Order Item Quantity: #{@order_item.quantity}"
-    
-    if @order.save
-      session[:order_id] = @order.id
-      flash[:notice] = "Item added to cart successfully."
-    else
-      flash[:alert] = "Error adding item to cart: #{@order.errors.full_messages.join(", ")}"
-      puts "Order save failed: #{@order.errors.full_messages}"
-      puts "Order item errors: #{@order_item.errors.full_messages}"
+    @order_item.unit_price = @order_item.product.price
+    @order_item.price = @order_item.product.price
+
+    Rails.logger.info "Updated Quantity: #{@order_item.quantity}"
+    Rails.logger.info "Product Price: #{@order_item.product.price}"
+    Rails.logger.info "Order Item Unit Price: #{@order_item.unit_price}"
+    Rails.logger.info "Order Item Price: #{@order_item.price}"
+
+    ActiveRecord::Base.transaction do
+      @order_item.save!
+      @order.save!
     end
+
+    session[:order_id] = @order.id
+    flash[:notice] = "Item added to cart successfully."
+    Rails.logger.info "Order saved successfully"
+    Rails.logger.info "Final Quantity: #{@order_item.reload.quantity}"
     
+    Rails.logger.info "====== ENDING CREATE ORDER ITEM ======"
+    redirect_to cart_path
+  rescue ActiveRecord::RecordInvalid => e
+    flash[:alert] = "Error adding item to cart: #{e.message}"
+    Rails.logger.error "Order save failed: #{e.message}"
     redirect_to cart_path
   end
 
