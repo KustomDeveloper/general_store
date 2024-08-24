@@ -1,22 +1,42 @@
-<h1>Your Cart</h1>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6 text-gray-800">Your Cart</h1>
 
-<% if @order_items.any? %>
-  <% @order_items.each do |item| %>
-    <div class="cart-item">
-      <h2><%= item.product.name %></h2>
-      <p>Price: <%= number_to_currency(item.product.price) %></p>
-      <%= form_with model: item, local: true do |f| %>
-        <%= f.label :quantity %>
-        <%= f.number_field :quantity, value: item.quantity, min: 1 %>
-        <%= f.submit 'Update Quantity' %>
+  <% if @order_items.any? %>
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+      <% @order_items.each do |item| %>
+        <div class="border-b border-gray-200 p-6">
+          <div class="flex flex-wrap items-center justify-between">
+            <h2 class="text-xl font-semibold text-gray-800 mb-2"><%= item.product.name %></h2>
+            <p class="text-lg font-medium text-green-600">Price: <%= number_to_currency(item.product.price) %></p>
+          </div>
+          <div class="mt-4 flex flex-wrap items-center justify-between">
+            <%= form_with model: item, local: true, class: "flex items-center" do |f| %>
+              <%= f.label :quantity, class: "mr-2 text-gray-700" %>
+              <%= f.number_field :quantity, value: item.quantity, min: 1, class: "w-16 p-2 border rounded mr-2" %>
+              <%= button_tag type: 'submit', class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 flex items-center" do %>
+                <i class="fas fa-sync-alt mr-2"></i> Update
+              <% end %>
+            <% end %>
+            <p class="text-lg font-medium text-gray-700 mt-2 sm:mt-0">Subtotal: <%= number_to_currency(item.total_price) %></p>
+          </div>
+          <div class="mt-4 text-right">
+            <%= button_to order_item_path(item), method: :delete, class: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 inline-flex items-center" do %>
+              <i class="fas fa-trash-alt mr-2"></i> Remove
+            <% end %>
+          </div>
+        </div>
       <% end %>
-      <p>Subtotal: <%= number_to_currency(item.total_price) %></p>
-      <%= button_to 'Remove', order_item_path(item), method: :delete %>
+      <div class="p-6 bg-gray-50">
+        <p class="text-2xl font-bold text-gray-800">Total: <%= number_to_currency(@order.order_items.sum(&:total_price)) %></p>
+      </div>
     </div>
+  <% else %>
+    <p class="text-xl text-gray-600">Your cart is empty.</p>
   <% end %>
-  <p>Total: <%= number_to_currency(@order.order_items.sum(&:total_price)) %></p>
-<% else %>
-  <p>Your cart is empty.</p>
-<% end %>
 
-<%= link_to 'Continue Shopping', products_path %>
+  <div class="mt-8 text-center">
+    <%= link_to products_path, class: "bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 inline-flex items-center" do %>
+      <i class="fas fa-shopping-basket mr-2"></i> Continue Shopping
+    <% end %>
+  </div>
+</div>

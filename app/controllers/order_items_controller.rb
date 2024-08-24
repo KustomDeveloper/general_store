@@ -1,26 +1,48 @@
 class OrderItemsController < ApplicationController
   def create
     Rails.logger.info "====== STARTING CREATE ORDER ITEM ======"
+    Rails.logger.info "Params: #{params.inspect}"
+    
     @order = current_order
-    @order_item = @order.order_items.find_or_initialize_by(product_id: params[:product_id])
-    quantity_to_add = params[:quantity].to_i
+    product_id = params[:product_id] || (params[:order_item] && params[:order_item][:product_id])
+    quantity = params[:quantity] || (params[:order_item] && params[:order_item][:quantity]) || 1
 
-    Rails.logger.info "Product ID: #{params[:product_id]}"
-    Rails.logger.info "Quantity to add: #{quantity_to_add}"
+    Rails.logger.info "Product ID: #{product_id}"
+    Rails.logger.info "Quantity to add: #{quantity}"
+
+    if product_id.nil?
+      Rails.logger.error "Product ID is nil"
+      flash[:alert] = "Error: Product not specified."
+      redirect_to root_path and return
+    end
+
+    product = Product.find_by(id: product_id)
+    if product.nil?
+      Rails.logger.error "Product not found for ID: #{product_id}"
+      flash[:alert] = "Product not found."
+      redirect_to root_path and return
+    end
+
+    @order_item = @order.order_items.find_or_initialize_by(product_id: product_id)
+    
     Rails.logger.info "Current Quantity: #{@order_item.quantity}"
     Rails.logger.info "Is new record? #{@order_item.new_record?}"
 
-    if @order_item.new_record?
-      @order_item.quantity = quantity_to_add
-    else
-      @order_item.quantity += quantity_to_add
+    new_quantity = @order_item.new_record? ? quantity.to_i : @order_item.quantity + quantity.to_i
+
+    # Check if the new quantity exceeds available stock
+    if new_quantity > product.stock
+      Rails.logger.error "Requested quantity (#{new_quantity}) exceeds available stock (#{product.stock})"
+      flash[:alert] = "Sorry, we don't have enough stock. Available: #{product.stock}"
+      redirect_to product_path(product) and return
     end
 
-    @order_item.unit_price = @order_item.product.price
-    @order_item.price = @order_item.product.price
+    @order_item.quantity = new_quantity
+    @order_item.unit_price = product.price
+    @order_item.price = product.price
 
     Rails.logger.info "Updated Quantity: #{@order_item.quantity}"
-    Rails.logger.info "Product Price: #{@order_item.product.price}"
+    Rails.logger.info "Product Price: #{product.price}"
     Rails.logger.info "Order Item Unit Price: #{@order_item.unit_price}"
     Rails.logger.info "Order Item Price: #{@order_item.price}"
 
@@ -45,8 +67,16 @@ class OrderItemsController < ApplicationController
   def update
     @order = current_order
     @order_item = @order.order_items.find(params[:id])
-    @order_item.update(order_item_params)
-    @order_items = @order.order_items
+    new_quantity = order_item_params[:quantity].to_i
+
+    # Check if the new quantity exceeds available stock
+    if new_quantity > @order_item.product.stock
+      flash[:alert] = "Sorry, we don't have enough stock. Available: #{@order_item.product.stock}"
+    else
+      @order_item.update(order_item_params)
+      flash[:notice] = "Cart updated successfully."
+    end
+
     redirect_to cart_path
   end
 

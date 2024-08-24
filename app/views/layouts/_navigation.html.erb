@@ -1,6 +1,18 @@
 <!-- app/views/layouts/_navigation.html.erb -->
-<nav>
-  <%= link_to 'Home', root_path %>
-  <%= link_to 'Products', products_path %>
-  <%= link_to 'Cart', cart_path %>
+<nav class="bg-gray-900 text-white py-4">
+  <div class="container mx-auto px-4 flex items-center justify-between">
+    <div class="text-xl font-bold">
+      <%= link_to 'Farmers Market', root_path %>
+    </div>
+    <div class="flex items-center space-x-6">
+      <%= link_to 'Home', root_path, class: 'hover:text-gray-300' %>
+      <%= link_to 'Products', products_path, class: 'hover:text-gray-300' %>
+      <div class="relative inline-flex items-center">
+        <%= link_to 'Cart', cart_path, class: 'hover:text-gray-300 pr-5' %>
+        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+          <%= current_order.order_items.sum(:quantity) %>
+        </span>
+      </div>
+    </div>
+  </div>
 </nav>

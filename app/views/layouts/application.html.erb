@@ -2,11 +2,15 @@
 <html>
   <head>
     <title>Farmers Market</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
 
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </head>
 
   <body>
@@ -18,10 +22,6 @@
     <% if flash[:alert] %>
       <div class="alert"><%= flash[:alert] %></div>
     <% end %>
-    
-    <div id="cart-status">
-      Cart: <%= pluralize(current_order.order_items.sum(:quantity), 'item') %>
-    </div>
     
     <%= yield %>
   </body>

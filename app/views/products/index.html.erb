@@ -1,17 +1,25 @@
-<h1>Farmers Market Products</h1>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6 text-gray-800">Farmers Market Products</h1>
 
-<div class="products">
-  <% @products.each do |product| %>
-    <div class="product">
-      <h2><%= link_to product.name, product_path(product) %></h2>
-      <p><%= product.description %></p>
-      <p>Price: <%= number_to_currency(product.price) %></p>
-      <p>In stock: <%= product.stock %></p>
-      <%= form_with url: order_items_path, local: true do |f| %>
-        <%= f.hidden_field :product_id, value: product.id %>
-        <%= f.number_field :quantity, value: 1, min: 1 %>
-        <%= f.submit 'Add to Cart' %>
-      <% end %>
-    </div>
-  <% end %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @products.each do |product| %>
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="p-6">
+          <h2 class="text-xl font-semibold mb-2">
+            <%= link_to product.name, product_path(product), class: "text-blue-600 hover:text-blue-800" %>
+          </h2>
+          <p class="text-gray-600 mb-4"><%= product.description %></p>
+          <p class="text-green-600 font-bold mb-2">Price: <%= number_to_currency(product.price) %></p>
+          <p class="text-gray-600 mb-4">In stock: <%= product.stock %></p>
+          <%= form_with url: order_items_path, local: true, class: "flex items-center" do |f| %>
+            <%= f.hidden_field :product_id, value: product.id %>
+            <%= f.number_field :quantity, value: 1, min: 1, class: "w-16 mr-2 p-2 border rounded" %>
+            <%= button_tag type: 'submit', class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 flex items-center" do %>
+              <i class="fas fa-cart-plus mr-2"></i> Add to Cart
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>
